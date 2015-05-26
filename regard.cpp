@@ -1,8 +1,8 @@
 #define XW_
 #include "see.hpp"
 
-/*------- Функция преобразования байтов из (!) HOST в NETWORK и наоборот (!) для
-       типов данных с разным размером -------------------------------------------*/
+/*------- Function to convert bytes from (!) HOST order to NETWORK order and vice versa (!) for
+       data types with different size -------------------------------------------*/
 
 #if HAVE_STRUCT_DECL_IN_TEMPL_FUNC
 template <class T>
@@ -21,8 +21,7 @@ T nh2hn ( T data, int razm )
  }
 #endif
  
-/*----------- Функция считывания файла ----------------------*/
-
+/*----------- Function to read a file ----------------------*/
 template <class tFormat>
 void Read ( tFormat m1, float *m, long l, long siz, int file, char *name )
 {
@@ -44,8 +43,7 @@ void Read ( tFormat m1, float *m, long l, long siz, int file, char *name )
 #endif
  }
  
-/*---------- Функция для обеспечения процедуры считывания ----------*/
-
+/*---------- Function to support the reading procedure ----------*/
 void ReadProc ( long j, long lg, long wr )
 {
  if (!strcmp(type, "uc")) TYPE(j, unsigned, char, lg, wr)
@@ -64,13 +62,12 @@ void ReadProc ( long j, long lg, long wr )
 /*=================================================================================
 
 
-                             Г Р А Ф И К А 
+                             G R A P H I C S 
 
 
 ==================================================================================*/
 
-/*-------- Функция создания файла общих граф. ресурсов ----------------------*/
-
+/*-------- Function to create a file with general graphics resources ----------------------*/
 void CreateBaseGraphicsFile (char * filename) {
 
  FILE *cfg = fopen(filename, "wt");
@@ -119,8 +116,7 @@ fprintf(cfg, "! This is a X resource file with base resources\n\n"
              fclose(cfg);
 }
 
-/*-----  Функция создания файла ресурсов, специфичных для see -----*/
-
+/*----- Function to create a file with XResources that are specific for See -----*/
 void CreateSeeXResources (char * filename) {
 
  FILE *cfg = fopen(filename, "wt");
@@ -158,15 +154,13 @@ fprintf(cfg, "! This is a See resource file\n\n"
              fclose(cfg);
 }
 
-// Функция для считывания графических ресурсов из командной строки в базу данных
-// получает ссылки на количество аргументов командной строки и ссылку
-// на сами эти аргументы
-// сначала создается граф. контекст, потом получаем дисплей вместе
-// с разбором опций командной строки
+// Function to read graphics resources from the command line into the data base
+// gets refs to a number of arguments of the command line and a ref to an array with these arguments
+// we create first a graphics context, then we get a Display together with parsing command line options
 void ReadResources (int& argc, char**& argv) {
 
   struct stat base_inf, inf;
-  // определяем наличие файла общих ресурсов, если его нет, то создаем
+  // check if general resource file exists, if not we create it
   if ( stat(XBaseResourcesFile, &base_inf) == 0 ) ; else {
    memset(XBaseResourcesFile, 0, MaxString+1);
    sprintf(XBaseResourcesFile, "%s%s", getenv("HOME"), "/.BaseGraphics");
@@ -181,33 +175,32 @@ void ReadResources (int& argc, char**& argv) {
   UpdateSeeXResources (XResourceFile, XBaseResourcesFile);
 
   XtToolkitInitialize();
-  // создаем графический контекст
+  // create graphics context
   appcont = XtCreateApplicationContext();
 
-  // получаем дисплей для данного граф. контекста
+  // get display for this graphics context
   if ((DisId = XtOpenDisplay(appcont, NULL, "See", "See", NULL, 0, &argc, argv)) == NULL) {
    printf("XtOpenDisplay: can't initialize display!\n");
    exit(1);
   }
 
-  // создаем базу данных для данного дисплея, в которую будут включены ресурсы
-  // из командной строки
+  // create data base for the current display where we include resources from the command line
   XrmDatabase args = XtDatabase(DisId);
-  // сливает вместе ресурсы дисплея, командной строки и файла ресурсов
+  // merge together resources from the display, command line and resource files
   XrmCombineFileDatabase(XResourceFile, &args, False);
 }
 
-// получает корневой виджет
-// функция заполняет необходимые ресурсы одних виджетов
-// через известные другие (высота, ширина и т.д.)
+// input - core widget
+// function fills in necessary resources of widgets using
+// known resources of others (height, width, etc)
 void UpdateResources ( Widget targetW ) {
 
- // Имеем:
+ // we have:
  Position headerY, vTitleX;
  Dimension headerH, vTitleW, vAxeW, legendH, plotBoxBorderW, hAxeH, footnoteH, Height, Width;
  Arg tmpX, tmpY, tmpH, tmpW;
  
- // получаем заданные параметры
+ // get set parameters
  XtSetArg(tmpH, XtNheight, &Height);
  XtSetArg(tmpW, XtNwidth, &Width);
  XtVaGetValues(XtParent(targetW), tmpH, tmpW, NULL);
@@ -236,7 +229,7 @@ void UpdateResources ( Widget targetW ) {
  XtVaGetValues(XtNameToWidget(targetW, "PlotBox"), tmpW, NULL);
 
 
- // устанавливаем другие параметры
+ // set other parameters
  XtVaSetValues(XtNameToWidget(targetW, "header"), XtNx, vTitleW + vAxeW, XtNwidth, Width - vTitleW - vAxeW, NULL);
 
  XtVaSetValues(XtNameToWidget(targetW, "legend"), XtNx, vTitleW + vAxeW, XtNy, headerY + headerH, XtNwidth, Width - vTitleW - vAxeW, NULL);
@@ -254,8 +247,7 @@ void UpdateResources ( Widget targetW ) {
  if (Post) XtVaSetValues(XtParent(targetW), XtNmappedWhenManaged, False, NULL);
 }
 
-/*---------- Функция записи изображения в файл в формате PPM ---------------*/
-
+/*---------- Function to write image to PPM file ---------------*/
 void MakePPMImage ( Widget targetW, XtPointer tD )
 {
  Dimension w, h;
@@ -321,8 +313,7 @@ int get_pixel (int x, int y) {
  return pict.get_pixel (x, y);
 }
 
-/*---------- Функция записи изображения в файл в формате GIF ---------------*/
-
+/*---------- Function to write image to GIF file ---------------*/
 void MakeGIFImage (Widget targetW, XtPointer tD) {
  Dimension w, h;
  Display *disID = XtDisplay(targetW);
@@ -369,8 +360,7 @@ void MakeGIFImage (Widget targetW, XtPointer tD) {
  delete(name);
 }
 
-/*--------- Функция записи выведенных данных в текстовый или бинарный файл ---------------------*/
-
+/*--------- Function to write drawn data to ascii or binary file ---------------------*/
 void Save2File ( float * x, long left, long window, unsigned char form )
 {
   FILE *txt;
@@ -430,18 +420,16 @@ void Save2File ( float * x, long left, long window, unsigned char form )
 
 /*=================================================================================
 
-
-                 Г Р А Ф И Ч Е С К И Е     П О Д О К Н А      И
-
-             Ф У Н К Ц И И      О Б Р А Б О Т К И     С О Б Ы Т И Й		 		                        
-
+                 G R A P H I C A L     S U B - W I N D O W S
+                 
+                  A N D    E V E N T    H A N D L E R S
 
 ==================================================================================*/
 
 
-/*------------------------ З А Г О Л О В О К --------------------------------
+/*------------------------ H E A D E R --------------------------------
 
-   Функция для вывода на экран содержания подокна заголовка
+   Function to display header sub-window
 
 -----------------------------------------------------------------------------*/   
 
@@ -474,9 +462,9 @@ void WindowHeader ( Widget targetW, long a, bool ekr = true )
  UNPLUG_WIDGETS_GC
 }
 
-/*-------------------------- Л Е Г Е Н Д А  ---------------------------------
+/*-------------------------- L E G E N D  ---------------------------------
 
-   Функция для вывода на экран содержания подокна легенды (мини-хелпа)
+   Function to display the legend sub-window (mini-help)
 
 -----------------------------------------------------------------------------*/
 
@@ -496,9 +484,9 @@ void Legend ( Widget targetW, bool ekr = true )
  UNPLUG_WIDGETS_GC
 }
 
-/*---------------------   С Н О С К И ------------------------------------
+/*--------------------- F O O T N O T E ------------------------------------
 
-  Функция для вывода на экран содержания подокна сносок
+  Function to dislay the footnote sub-window
 
 ---------------------------------------------------------------------------*/  
 
@@ -537,9 +525,9 @@ void Footnote ( Widget targetW, XtPointer tD, bool ekr = true )
  UNPLUG_WIDGETS_GC
 }
 
-/*---------- З А Г О Л О В О К    В Е Р Т И К А Л Ь Н О Й     О С И ----------------------
+/*---------- V E R T I C A L   A X I S   L A B E L ----------------------
 
-    Функция для вывода на экран заголовка вертикальной оси
+    Function to display the label of the vertical axis
 
 -----------------------------------------------------------------------------------------*/    
 
@@ -579,9 +567,9 @@ void vTitle ( Widget targetW, bool ekr = true )
  UNPLUG_WIDGETS_GC
 }
 
-/*---------- В Е Р Т И К А Л Ь Н А Я    О С Ь ----------------------
+/*---------- V E R T I C A L   A X I S ----------------------
 
-    Функция для вывода на экран содержания подокна вертикальной оси
+    Function to display the vertical axis sub-window
 
 ----------------------------------------------------------------------*/    
 
@@ -638,8 +626,7 @@ void VertAxe ( Widget targetW, bool ekr = true )
  UNPLUG_WIDGETS_GC
 }
 
-/*------------ Функция определения максимума среди всех файлов ------------------*/
-
+/*------------ Function to determine the maximum value among all files ------------------*/
 void Vertic ( Widget targetW, XtPointer tD, int resize, bool ekr = true )
 {
   float * x;
@@ -699,9 +686,9 @@ void Vertic ( Widget targetW, XtPointer tD, int resize, bool ekr = true )
   VertAxe(targetW, ekr);
 }
 
-/*---------- Г О Р И З О Н Т А Л Ь Н А Я    О С Ь ----------------------
+/*---------- H O R I Z O N T A L   A X I S ----------------------
 
-    Функция для вывода на экран содержания подокна горизонтальной оси
+    Function to display the horizontal axis sub-window
 
 ----------------------------------------------------------------------*/
 
@@ -765,9 +752,9 @@ void HorizAxe ( Widget targetW, bool ekr = true )
  UNPLUG_WIDGETS_GC
 }
 
-/*------------  Д Е С Т Р У К Т О Р    О К О Н  --------------------
+/*------------  W I N D O W   D E S T R U C T O R --------------------
 
-    Функция для корректного закрытия окон при выходе из программы
+    Function to correctly close windows at the end of the program
 
 -----------------------------------------------------------------------*/    
 
@@ -790,8 +777,7 @@ void Destroy ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont )
   }
 }                                      
 
-/*---------- Обработчик событий для движения пойнтера внутри окна для рисования ------------------*/
-
+/*---------- Event handler for pointer moving inside the main window ------------------*/
 void PointerPos ( Widget targetW,  XtPointer tD, XEvent *event, Boolean *cont )
 {
  if (event->type == MotionNotify)
@@ -805,9 +791,7 @@ void PointerPos ( Widget targetW,  XtPointer tD, XEvent *event, Boolean *cont )
    }
  }                                                              
 
-/*-----------  РАМКА - БЕГУНОК для увеличения/уменьшения размера
-                    выводимых на экран данных -----------------------------*/ 
-
+/*-----------  SELECTION WINDOW for zoom-in/zoom-out -----------------------------*/
 void MapBegunok ( Widget targetW )
 {
   int sh;
@@ -837,8 +821,7 @@ void MapBegunok ( Widget targetW )
   XtReleaseGC(targetW, grC);
  }
 
-/*---------- Обработчик событий для движения РАМКИ - БЕГУНКА -------------------------*/
-
+/*---------- Event handler for moving of SELECTION WINDOW -------------------------*/
 void MoveBegunok ( Widget targetW,  XtPointer tD, XEvent *event, Boolean *cont )
 {
  if (event->type == MotionNotify)
@@ -855,8 +838,7 @@ void MoveBegunok ( Widget targetW,  XtPointer tD, XEvent *event, Boolean *cont )
    }
  }                                                              
 
-/*------------ Обработчик событий для изменения размера РАМКИ - БЕГУНКА ---------------*/
- 
+/*------------ Event handler for changing the size of SELECTION WINDOW ---------------*/
 void ResizeBegunok ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont )
  {
   if (event->type == ButtonPress)
@@ -892,8 +874,7 @@ void ResizeBegunok ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont 
   }
  }                                                           
 
-/*---------------- Функция для вывода на экран данных ------------------------------*/
-
+/*---------------- Function to plot the data in the main window ------------------------------*/
 void Plotdata ( Widget targetW, XtPointer tD, bool ekr = true )
 {    
   float * x;
@@ -1060,8 +1041,8 @@ void Plotdata ( Widget targetW, XtPointer tD, bool ekr = true )
    UNPLUG_WIDGETS_GC   
 }
 
-/*---------- Функция перерисовки окна -----------------*/
-// в качестве Widget должен передаваться корневой, т.е. coreW
+/*---------- Function to re-draw the window -----------------*/
+// as  Widget we should give the core widget (coreW)
 
 void WindowRedraw (Widget targetW, XtPointer tD)
 {
@@ -1074,19 +1055,17 @@ void WindowRedraw (Widget targetW, XtPointer tD)
   Footnote     (XtNameToWidget(targetW, "footnote"), tD);
 }
 
-/*---------- Обработчик событий для обработки события Expose --------------------*/
-					      
+/*---------- Event handler for Expose event --------------------*/   
 void WinExpose ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont )
 {
   if (event->type == VisibilityNotify &&
-      // перерисовываем только тогда, когда окно полностью открыто
+      // re-draw only when the window is completely open
       event->xvisibility.state == 0 &&
       auto_expose)
    WindowRedraw(targetW, tD);
 } 
 
-/*---------- Обработчик событий для изменения реальных размеров окна --------------------*/
-					      
+/*---------- Event handler for changing the size of the main window --------------------*/					      
 void WinResize ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont )
 {
   if(event->type == ConfigureNotify)
@@ -1149,8 +1128,7 @@ void WinResize ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont )
   }
 }                                             
 
-/*--------- Функция записи выведенных данных в Postscript ---------------------*/
-
+/*--------- Function to write the output data to Postscript file ---------------------*/
 void Save2PS (Widget targetW, XtPointer tD, bool is_land = false) {
   char * name;
          name = new char[MaxString+1];
@@ -1200,8 +1178,7 @@ void Save2PS (Widget targetW, XtPointer tD, bool is_land = false) {
    delete(name);
 }
 
-/*------------- Отработчик событий по нажатым на клавиатуре кнопкам -------------------*/
-
+/*------------- Event handler for keyboard events -------------------*/
 void Keyboard ( Widget targetW, XtPointer tD, XEvent *event, Boolean *cont )
 {
 if ( event->type == KeyPress || event->type == KeyRelease )
@@ -1218,7 +1195,7 @@ if ( event->type == KeyPress || event->type == KeyRelease )
 	       MapBegunok(XtNameToWidget(targetW, "PlotBox"));
 	       Footnote(XtNameToWidget(targetW, "footnote"), tD);
                break;
- /*   "+"   */            /*---------- На самом деле это код = ------------*/
+ /*   "+"   */            /*---------- This is code for '=' ------------*/
   case 0x3d:   MapBegunok(XtNameToWidget(targetW, "PlotBox"));
                if((lo-left) + okno + rate > window) ; else okno += rate;		          
 	       MapBegunok(XtNameToWidget(targetW, "PlotBox"));
@@ -1386,8 +1363,8 @@ if ( event->type == KeyPress || event->type == KeyRelease )
  }                                                
 
 /*-------------------------------------------------------------------
- Функция с заданным интервалом (timint) проверяет изменился ли
- файл или нет. Если да, то перечитывает его
+ This function checks with given time interval (timeint) whether 
+ file has changed or not. If it's different, the we re-read it
 --------------------------------------------------------------------*/
 void ChecksFileModification (XtPointer tD, XtIntervalId *id) {
   struct stat inf;
@@ -1410,13 +1387,13 @@ void ChecksFileModification (XtPointer tD, XtIntervalId *id) {
 }
 
 /*----------------------------------------------------------------
- Функция с заданным интервалом (slide_time) последовательно
- меняет файлы - то есть это слайд-шоу
+ This function changes files sequentially with a given 
+ time (slide_time) - i.e. this is slide-show
 ------------------------------------------------------------------*/
 void SlideShow (XtPointer tD, XtIntervalId *id) {
   if (Cycle) {
     if (next + cur_file + Group < ac) cur_file += Group; else cur_file = 0;
-  } else { // если не задан Cycle, то сначала крутим в одну сторону, а потом в другую
+  } else { // if Cycle is not given, then we first change files in one direction and then in other
     if (dir && next + cur_file + Group < ac) cur_file += Group; else dir = false;
     if (!dir && next + cur_file - Group >= next) cur_file -= Group; else { if (!dir && next + cur_file + Group < ac) { cur_file += Group; } dir = true; }
   }
@@ -1429,7 +1406,7 @@ void SlideShow (XtPointer tD, XtIntervalId *id) {
   XtAppAddTimeOut(appcont, slide_time, SlideShow, tD);
 }
 
-/*--------------------- Функция MAIN в Г Р А Ф И К Е ----------------------------------------*/
+/*--------------------- M A I N    G R A P H I C A L   F U N C T I O N ----------------------------------------*/
 
 void Plotting () {
 
@@ -1463,12 +1440,12 @@ void Plotting () {
  Widget plotW   = XtVaCreateManagedWidget("PlotBox",  coreWidgetClass,      coreW,     NULL);
  Widget footW   = XtVaCreateManagedWidget("footnote", coreWidgetClass,      coreW,     NULL);
 
- // определяем неизвестные параметры у виджетов через известные у других
+ // determine unknown widget parameters from known parameters from other widgets
  UpdateResources(coreW);
  
  XtRealizeWidget(shellW);
 
- // Перехватываем фокус клавиатурного ввода
+ // Intercept keyboard focus
  XWMHints wmh;
  wmh.flags = InputHint;
  wmh.input = True;
@@ -1493,7 +1470,7 @@ void Plotting () {
   mtstatus[j] = inf.st_mtime;
  }
  if (timint >= 0) XtAppAddTimeOut(appcont, timint, ChecksFileModification, m);
- // устанавливаем слайд-шоу
+ // set slide-show
  if (slide_time >= 0) XtAppAddTimeOut(appcont, slide_time, SlideShow, m);
 
  if (Post) Save2PS (coreW, m, true);
@@ -1503,7 +1480,7 @@ void Plotting () {
   XtAddEventHandler(coreW,   KeyPressMask,        False, Keyboard,      m);
   XtAddEventHandler(coreW,   StructureNotifyMask, False, WinResize,     m);
  
-  // если сервер поддерживает backing_store, то не добавляем обработку события Expose
+  // if server supports backing_store, then we do not add Expose event handler
   if (!DoesBackingStore(XtScreen(shellW)))
    XtAddEventHandler(coreW, VisibilityChangeMask, False, WinExpose, m);
   

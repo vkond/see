@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -c -g -O3 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -Wno-deprecated -Wno-write-strings
-INCL = -I./ -I/usr/X11R6/include
-LIBS = -lX11 -lXt -L/usr/X11R6/lib -lSM -lICE
+INCL = -I./ -I/usr/include
+LIBS = -lX11 -lXt -L/usr/lib -lSM -lICE
 TARGET = see
 all: $(TARGET) strip clean
 

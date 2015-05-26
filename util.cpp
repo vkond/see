@@ -4,8 +4,8 @@
 
 using namespace std;
 
-/*-----  Функция апдейта файла ресурсов, специфичных для see
-         для правильного указания базового файла -----*/
+/*----- Function to update the Xresource file, specific for 'see'
+ *      to correctly identify the base file -----*/
 
 void UpdateSeeXResources (char * filename, char * base) {
 

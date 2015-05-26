@@ -1,8 +1,7 @@
 #define MAIN_
 #include "see.hpp"
 
-/*--- Функция, которая отделяет имя файла от пути ----*/
-
+/*--- Function that splits the basename of the file from the path ----*/
 char *SelectFileName (char * str)
 {
  char *s = str;
@@ -12,8 +11,7 @@ char *SelectFileName (char * str)
  return (++s);
  }
  
-/*----------- Функция для склеивания строки и числа -----------*/
-
+/*----------- Function to merge a string with a number -----------*/
 char * glue ( char * s, int d )
 {
  char * dest;
@@ -24,8 +22,7 @@ char * glue ( char * s, int d )
 	delete (dest);
 }
 
-/*--------- Функция усреднения массива ----------------*/
-     
+/*--------- Function to average an array ----------------*/
 long average ( float * mass, long sz )
 {
  float sum;
@@ -39,8 +36,7 @@ for (long i=0, j, k=0;i<sz;i+=aver, k++) {
  return (sz/aver + ostatok);    
 }
 
-/*--------- Функция сглаживания массива -----------------*/
-
+/*--------- Function to smooth an array -----------------*/
 long smoothing ( float * mass, long sz )
 {
  float sum = 0., tmp; 
@@ -57,8 +53,7 @@ long smoothing ( float * mass, long sz )
  return (sz - smooth + 1);  
 }
 				       
-/*==========================Prompting===================================*/
-
+/*========================== Prompting ===================================*/
 void Help ( char *s )
  {
   printf("\nPROGRAMM %s\n"
@@ -171,8 +166,7 @@ void Help ( char *s )
   exit(0);
  }
  
-/*===================Parsing the command line===========================*/
-
+/*=================== Parsing the command line ===========================*/
 int ParseCmdLine ( void )
  {  
   int op;
@@ -341,21 +335,21 @@ int ParseCmdLine ( void )
   return(optind);
  }
 
-/*-------- Функция определения подходящего размера блока данных ------------------*/
-
+/*-------- Function that determines the suitable data block size ------------------*/
 long DataBlockDefinition ( void )
 {
-  // получаем разрешенный для использования объем памяти
-  // если вернулся 0 => maxblock < 0 и => размер блока будет равен размеру файла
+  // getting allowed RAM size to use
+  // if returned value is 0 => maxblock < 0 and => block size will be the file size
   unsigned long availmem = getAvailableMemory();
-  // это эмпирическая константа (память приблизительно используемая для переменных)
+  // empirical constant (RAM approximately used for variables)
   unsigned long konstanta = 1500 * 1024;  
-  long maxblock = ( availmem - konstanta - (next+1 != ac ? (NoCover == 1 ? 4 : 3)*(ac-next) : 0)*sizeof(short int) - sizeof(short int)*(next+1 != ac && NoCover == 1 ? 2 - smooth : 0) ) / ( sizeof(float) + razm + (next+1 != ac && NoCover == 1 ? sizeof(short int)/aver : 0) );
+  long maxblock = ( availmem - konstanta - (next+1 != ac ? (NoCover == 1 ? 4 : 3)*(ac-next) : 0)*sizeof(short int) - sizeof(short int)*(next+1 != ac && NoCover == 1 ? \
+      2 - smooth : 0) ) / ( sizeof(float) + razm + (next+1 != ac && NoCover == 1 ? sizeof(short int)/aver : 0) );
   if (maxblock >= si || maxblock < 2) return si;
    else return maxblock;
 }
 
-/*======================= M A I N =========================================*/
+/*===================================== M A I N =========================================*/
 
 int main ( int argc, char *argv[] )
 {
@@ -378,9 +372,9 @@ int main ( int argc, char *argv[] )
  sprintf(XResourceFile, "%s", ".See");
  sprintf(OutputPath, "%s", "\0");
 
- // опции, которые не должны считаться графическими
+ // options which are not graphical
  char *options[] = { "-d", "-t", "-b" };
- int opt_kind[] = { 1, 1, 1 }; // какие это опции: 1 - есть аргумент, 0 - нет аргумента
+ int opt_kind[] = { 1, 1, 1 }; // types of these non-graphical options: 1 - there is an argument, 0 - no argument
  CommandLineOptions clo(argc, argv, options, opt_kind, 3);
  av = clo.remove();
  ac = clo.getN();
@@ -400,9 +394,9 @@ int main ( int argc, char *argv[] )
  }
 
  if (Group < 1 || Group > ac-next) Group = 1;
- // если задано последовательное отображение, то игнорируем опцию --shift  (если Group == 1)
+ // if we show files sequentially, then we ignore --shift option (if Group == 1)
  if (Seq && Group == 1) { Shift = 0.; NoCover = 0; }
- if (!Seq) { Cycle = false; slide_time = -1; Group = 1; } // если не задан Seq, то делаем Cycle = false и выключаем слайд-шоу
+ if (!Seq) { Cycle = false; slide_time = -1; Group = 1; } // if Seq is false, then we make Cycle = false and turn off a slide show
  
  if (le >= win) le = 0;
  if (si > win || si == -1) si = win;
@@ -413,7 +407,9 @@ int main ( int argc, char *argv[] )
  if (aver != 1) aver = (aver > si ? si : aver);
  if (aver != 1) block = (block <= aver ? aver : (block%aver != 0 && block != si ? aver * (long)(block/aver) : block));
  if (smooth != 1) smooth = (smooth > (long)(block/aver) ? (long)(block/aver) : smooth);
- iter = (si == block ? 1 : ((si-aver*(smooth != 1 ? smooth - 1 : 0))%(block-aver*(smooth != 1 ? smooth - 1 : 0)) == 0 ? (si-aver*(smooth != 1 ? smooth - 1 : 0))/(block-aver*(smooth != 1 ? smooth - 1 : 0)) : (si-aver*(smooth != 1 ? smooth - 1 : 0))/(block-aver*(smooth != 1 ? smooth - 1 : 0)) + 1) );
+ iter = (si == block ? 1 : ((si-aver*(smooth != 1 ? smooth - 1 : 0))%(block-aver*(smooth != 1 ? smooth - 1 : 0)) == 0 ? \
+    (si-aver*(smooth != 1 ? smooth - 1 : 0))/(block-aver*(smooth != 1 ? smooth - 1 : 0)) : \
+    (si-aver*(smooth != 1 ? smooth - 1 : 0))/(block-aver*(smooth != 1 ? smooth - 1 : 0)) + 1) );
 
  if (block != si) printf("-- Attention ! -- block working mode switch on / blksize = %ld /\n", block);
 
@@ -431,4 +427,3 @@ int main ( int argc, char *argv[] )
 
  return 0;
 }
- 
